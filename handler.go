@@ -28,6 +28,10 @@ func init() {
 func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	log.Println("request.HTTPMethod:", request.HTTPMethod)
 	log.Println("request.Body:", request.Body)
+	if request.HTTPMethod == "OPTIONS" {
+		return lib.NewBasicResponse(200, ""), nil
+	}
+
 	var token string = ""
 	for key, value := range request.Headers {
 		if key == "Authorization" {
