@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Golang Spotty api'
+
+Parameters:
+  DEBUG:
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+  JwtSecret:
+    Type: String
+    Default: '{{resolve:ssm:JafJwtSecret:1}}'
+    AllowedValues:
+      - '{{resolve:ssm:JafJwtSecret:1}}'
+  AdminSpotifyId:
+    Type: String
+    Default: xnmacgqaaa6a1xi7uy2k1fe7w
+    AllowedValues:
+      - xnmacgqaaa6a1xi7uy2k1fe7w
+
+Globals:
+  Function:
+    Timeout: 15
+    MemorySize: 128
+    Runtime: go1.x
+    Environment:
+      Variables:
+        DEBUG: !Ref DEBUG
+        JwtSecret: !Ref JwtSecret
+        AdminSpotifyId: !Ref AdminSpotifyId
+
+Resources:
+  HttpApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: v1
+
+  UsersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: handler.main
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: SpotifyProfile
+      Events:
+        Postusers:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: get
+            RestApiId: !Ref HttpApiGateway
+            RequestParameters:
+              - method.request.header.Authorization:
+                  Required: true
+        Optionsusers:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: options
+            RestApiId: !Ref HttpApiGateway
+
+Outputs:
+  UsersFunction:
+    Description: Golang users function
+    Value: !Ref UsersFunction
+  HttpApiGateway:
+    Description: Golang Api Gateway
+    Value: !Ref HttpApiGateway
