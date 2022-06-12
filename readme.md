@@ -1,0 +1,1 @@
+https://pkg.go.dev/github.com/golang-jwt/jwt#example-Parse-Hmac

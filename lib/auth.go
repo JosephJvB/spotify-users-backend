@@ -15,8 +15,8 @@ type Auth struct {
 	JwtSecret []byte
 }
 
-func (a *Auth) Decode(tokenStr string) (JWTClaims, error) {
-	claims := JWTClaims{}
+func (a *Auth) Decode(tokenStr string) (*JWTClaims, error) {
+	claims := &JWTClaims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 		// if _, ok := token.Method.(*jwt.SigningMethodHS256); !ok {
 		// 	return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -27,9 +27,12 @@ func (a *Auth) Decode(tokenStr string) (JWTClaims, error) {
 	if err != nil {
 		return claims, err
 	}
-
-	if !token.Valid {
-		return claims, errors.New("Decode error: Token invalid")
+	if token == nil {
+		return claims, errors.New("Decode error: Token is nil")
+	}
+	claims, ok := token.Claims.(*JWTClaims)
+	if !token.Valid || !ok {
+		return claims, errors.New("Decode error: Token or claims not valid")
 	}
 	return claims, nil
 }
@@ -41,7 +44,7 @@ func (a *Auth) Encode(claims JWTClaims) (string, error) {
 
 func NewAuth() *Auth {
 	a := &Auth{
-		JwtSecret: []byte(os.Getenv("JafJwtSecret")),
+		JwtSecret: []byte(os.Getenv("JwtSecret")),
 	}
 	return a
 }

@@ -72,7 +72,7 @@ func NewUserResponse(users []User, token string) events.APIGatewayProxyResponse 
 }
 
 type JWTData struct {
-	Expires   *int64 `json:"expires"`
+	Expires   int64  `json:"expires"`
 	SpotifyId string `json:"spotifyId"`
 }
 type JWTClaims struct {

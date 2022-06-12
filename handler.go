@@ -30,7 +30,7 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 	log.Println("request.Body:", request.Body)
 	var token string = ""
 	for key, value := range request.Headers {
-		if key == "Bearer" {
+		if key == "Authorization" {
 			s := strings.Split(value, " ")
 			if len(s) == 2 {
 				token = s[1]
@@ -42,14 +42,20 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 		return lib.NewBasicResponse(400, msg), nil
 	}
 
-	decoded, err := auth.Decode(token)
-	if err != nil {
-		msg := "Invalid request, Invalid Bearer token"
+	claims, err := auth.Decode(token)
+	if err != nil || claims == nil {
+		msg := "Invalid request, failed to decode bearer token"
 		return lib.NewBasicResponse(400, msg), err
 	}
 
+	decoded := *claims
+
 	if decoded.Data.SpotifyId != adminSpotifyId {
 		msg := "Invalid request, Unauthorized user, not joe!"
+		return lib.NewBasicResponse(400, msg), err
+	}
+	if decoded.Data.Expires < time.Now().Unix() {
+		msg := "Invalid request, token expired"
 		return lib.NewBasicResponse(400, msg), err
 	}
 
@@ -59,17 +65,16 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 		return lib.NewBasicResponse(400, msg), err
 	}
 
-	ts := time.Now().Unix()
-	secs := ts + (60 * 60 * 8)
+	ts := time.Now().Unix() + (60 * 60 * 8)
 	nextClaims := lib.JWTClaims{
 		Data: lib.JWTData{
-			Expires:   &secs,
+			Expires:   ts,
 			SpotifyId: decoded.Data.SpotifyId,
 		},
 	}
 	token, err = auth.Encode(nextClaims)
 	if err != nil {
-		msg := "Failed to encode token"
+		msg := "Failed to encode token " + err.Error()
 		return lib.NewBasicResponse(500, msg), err
 	}
 

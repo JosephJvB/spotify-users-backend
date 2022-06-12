@@ -40,15 +40,13 @@ func (d *Ddb) GetUsers() ([]User, error) {
 			}
 			users = append(users, u)
 		}
-		if r.LastEvaluatedKey != nil {
-			key = r.LastEvaluatedKey
-		}
+		key = r.LastEvaluatedKey
 	}
 	return users, nil
 }
 
 func NewDdb() *Ddb {
-	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-west-2"))
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("ap-southeast-2"))
 	if err != nil {
 		log.Fatal(err)
 	}
