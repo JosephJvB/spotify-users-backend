@@ -18,7 +18,7 @@ var (
 )
 
 func init() {
-	log.SetPrefix("Lambda2:")
+	log.SetPrefix("LoadUsers:")
 	log.SetFlags(0)
 	auth = lib.NewAuth()
 	adminSpotifyId = os.Getenv("AdminSpotifyId")
@@ -26,6 +26,7 @@ func init() {
 }
 
 func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	log.Println(request)
 	log.Println("request.HTTPMethod:", request.HTTPMethod)
 	log.Println("request.Body:", request.Body)
 	if request.HTTPMethod == "OPTIONS" {

@@ -46,7 +46,7 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: SpotifyProfile
       Events:
-        Postusers:
+        GetUsers:
           Type: Api
           Properties:
             Path: /users
@@ -55,7 +55,7 @@ Resources:
             RequestParameters:
               - method.request.header.Authorization:
                   Required: true
-        Optionsusers:
+        OptionsUsers:
           Type: Api
           Properties:
             Path: /users
