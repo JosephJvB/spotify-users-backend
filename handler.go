@@ -70,10 +70,11 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 		return lib.NewBasicResponse(400, msg), err
 	}
 
-	ts := time.Now().Unix() + (60 * 60 * 8)
+	// https://stackoverflow.com/questions/36051177/date-now-equivalent-in-go
+	ts := time.Now().UTC().UnixNano() / 1e6
 	nextClaims := lib.JWTClaims{
 		Data: lib.JWTData{
-			Expires:   ts,
+			Expires:   ts * 1000,
 			SpotifyId: decoded.Data.SpotifyId,
 		},
 	}
