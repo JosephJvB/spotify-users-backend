@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	auth           *lib.Auth
 	adminSpotifyId string
-	ddb            *lib.Ddb
+	auth           lib.IAuth
+	ddb            lib.IDdb
 )
 
 func init() {

@@ -9,8 +9,8 @@ import (
 )
 
 type IAuth interface {
-	Decode(token string) (interface{}, error)
-	Encode(interface{}) (string, error)
+	Decode(token string) (*JWTClaims, error)
+	Encode(claims JWTClaims) (string, error)
 }
 type Auth struct {
 	JwtSecret []byte

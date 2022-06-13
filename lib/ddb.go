@@ -12,7 +12,7 @@ import (
 )
 
 type IDdb interface {
-	GetUsers() (users []User)
+	GetUsers() ([]User, error)
 }
 type Ddb struct {
 	client *dynamodb.Client
