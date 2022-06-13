@@ -53,13 +53,11 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 		return lib.NewBasicResponse(400, msg), err
 	}
 
-	decoded := *claims
-
-	if decoded.Data.SpotifyId != adminSpotifyId {
+	if claims.Data.SpotifyId != adminSpotifyId {
 		msg := "Invalid request, Unauthorized user, not joe!"
 		return lib.NewBasicResponse(400, msg), err
 	}
-	if decoded.Data.Expires < time.Now().Unix() {
+	if claims.Data.Expires < time.Now().Unix() {
 		msg := "Invalid request, token expired"
 		return lib.NewBasicResponse(400, msg), err
 	}
@@ -75,7 +73,7 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 	nextClaims := lib.JWTClaims{
 		Data: lib.JWTData{
 			Expires:   ts * 1000,
-			SpotifyId: decoded.Data.SpotifyId,
+			SpotifyId: claims.Data.SpotifyId,
 		},
 	}
 	token, err = auth.Encode(nextClaims)
