@@ -58,7 +58,9 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 		msg := "Invalid request, Unauthorized user, not joe!"
 		return lib.NewBasicResponse(400, msg), err
 	}
-	if claims.Data.Expires < time.Now().Unix() {
+	// https://stackoverflow.com/questions/36051177/date-now-equivalent-in-go
+	now := time.Now().UTC().UnixNano() / 1e6
+	if claims.Data.Expires < now {
 		msg := "Invalid request, token expired"
 		return lib.NewBasicResponse(400, msg), err
 	}
@@ -69,11 +71,9 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 		return lib.NewBasicResponse(400, msg), err
 	}
 
-	// https://stackoverflow.com/questions/36051177/date-now-equivalent-in-go
-	ts := time.Now().UTC().UnixNano() / 1e6
 	nextClaims := lib.JWTClaims{
 		Data: lib.JWTData{
-			Expires:   ts * 1000,
+			Expires:   now * 1000,
 			SpotifyId: claims.Data.SpotifyId,
 		},
 	}

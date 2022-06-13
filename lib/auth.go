@@ -2,6 +2,7 @@ package lib
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/golang-jwt/jwt"
@@ -18,9 +19,10 @@ type Auth struct {
 func (a *Auth) Decode(tokenStr string) (*JWTClaims, error) {
 	claims := &JWTClaims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
-		// if _, ok := token.Method.(*jwt.SigningMethodHS256); !ok {
-		// 	return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		// }
+		_, ok := token.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
 
 		return a.JwtSecret, nil
 	})
