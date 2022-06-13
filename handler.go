@@ -33,14 +33,15 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 		return lib.NewBasicResponse(200, ""), nil
 	}
 
-	var token string = ""
-	for key, value := range request.Headers {
-		if key == "Authorization" {
-			s := strings.Split(value, " ")
-			if len(s) == 2 {
-				token = s[1]
-			}
-		}
+	authHeader, ok := request.Headers["Authorization"]
+	if !ok || authHeader == "" {
+		msg := "Invalid request, missing Authorization header"
+		return lib.NewBasicResponse(400, msg), nil
+	}
+	var token string
+	s := strings.Split(authHeader, " ")
+	if len(s) == 2 {
+		token = s[1]
 	}
 	if token == "" {
 		msg := "Invalid request, invalid Authorization header"
