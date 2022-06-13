@@ -24,7 +24,7 @@ type BaseResponse struct {
 }
 
 func getCors() map[string]string {
-	h := make(map[string]string)
+	h := map[string]string{}
 	h["Content-Type"] = "application/json"
 	h["Allow"] = "*"
 	h["Access-Control-Allow-Headers"] = "*"
@@ -46,7 +46,7 @@ func NewBasicResponse(code int, message string) events.APIGatewayProxyResponse {
 		StatusCode:        code,
 		Headers:           getCors(),
 		Body:              string(b),
-		MultiValueHeaders: make(map[string][]string),
+		MultiValueHeaders: map[string][]string{},
 		IsBase64Encoded:   false,
 	}
 }
@@ -66,7 +66,7 @@ func NewUserResponse(users []User, token string) events.APIGatewayProxyResponse 
 		StatusCode:        200,
 		Headers:           getCors(),
 		Body:              string(b),
-		MultiValueHeaders: make(map[string][]string),
+		MultiValueHeaders: map[string][]string{},
 		IsBase64Encoded:   false,
 	}
 }
