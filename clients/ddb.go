@@ -1,4 +1,4 @@
-package lib
+package clients
 
 import (
 	"context"
@@ -9,18 +9,19 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"jaf-unwrapped.com/users/models"
 )
 
 type IDdb interface {
-	GetUsers() ([]User, error)
+	GetUsers() ([]models.User, error)
 }
 type Ddb struct {
 	client *dynamodb.Client
 }
 
-func (d Ddb) GetUsers() ([]User, error) {
+func (d Ddb) GetUsers() ([]models.User, error) {
 	var key map[string]types.AttributeValue
-	users := []User{}
+	users := []models.User{}
 	for loop := true; loop; loop = (key != nil) {
 		params := &dynamodb.ScanInput{
 			TableName: aws.String("SpotifyProfile"),
@@ -33,7 +34,7 @@ func (d Ddb) GetUsers() ([]User, error) {
 			return nil, err
 		}
 		for _, v := range r.Items {
-			u := User{}
+			u := models.User{}
 			err = attributevalue.UnmarshalMap(v, &u)
 			if err != nil {
 				return nil, err

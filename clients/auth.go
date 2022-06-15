@@ -1,4 +1,4 @@
-package lib
+package clients
 
 import (
 	"errors"
@@ -6,18 +6,19 @@ import (
 	"os"
 
 	"github.com/golang-jwt/jwt"
+	"jaf-unwrapped.com/users/models"
 )
 
 type IAuth interface {
-	Decode(token string) (JWTClaims, error)
-	Encode(claims JWTClaims) (string, error)
+	Decode(token string) (models.JWTClaims, error)
+	Encode(claims models.JWTClaims) (string, error)
 }
 type Auth struct {
 	JwtSecret []byte
 }
 
-func (a Auth) Decode(tokenStr string) (JWTClaims, error) {
-	claims := JWTClaims{}
+func (a Auth) Decode(tokenStr string) (models.JWTClaims, error) {
+	claims := models.JWTClaims{}
 	token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
@@ -35,7 +36,7 @@ func (a Auth) Decode(tokenStr string) (JWTClaims, error) {
 	return claims, nil
 }
 
-func (a Auth) Encode(claims JWTClaims) (string, error) {
+func (a Auth) Encode(claims models.JWTClaims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(a.JwtSecret)
 }

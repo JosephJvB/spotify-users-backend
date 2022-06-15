@@ -8,21 +8,22 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"jaf-unwrapped.com/users/lib"
+	"jaf-unwrapped.com/users/clients"
+	"jaf-unwrapped.com/users/models"
 )
 
 var (
 	adminSpotifyId string
-	auth           lib.IAuth
-	ddb            lib.IDdb
+	auth           clients.IAuth
+	ddb            clients.IDdb
 )
 
 func init() {
 	log.SetPrefix("LoadUsers:")
 	log.SetFlags(0)
-	auth = lib.NewAuth()
+	auth = clients.NewAuth()
 	adminSpotifyId = os.Getenv("AdminSpotifyId")
-	ddb = lib.NewDdb()
+	ddb = clients.NewDdb()
 }
 
 func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -30,13 +31,13 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 	log.Println("request.HTTPMethod:", request.HTTPMethod)
 	log.Println("request.Body:", request.Body)
 	if request.HTTPMethod == "OPTIONS" {
-		return lib.NewBasicResponse(200, ""), nil
+		return models.NewBasicResponse(200, ""), nil
 	}
 
 	authHeader, ok := request.Headers["Authorization"]
 	if !ok || authHeader == "" {
 		msg := "Invalid request, missing Authorization header"
-		return lib.NewBasicResponse(400, msg), nil
+		return models.NewBasicResponse(400, msg), nil
 	}
 	var token string
 	s := strings.Split(authHeader, " ")
@@ -45,34 +46,34 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 	}
 	if token == "" {
 		msg := "Invalid request, invalid Authorization header"
-		return lib.NewBasicResponse(400, msg), nil
+		return models.NewBasicResponse(400, msg), nil
 	}
 
 	claims, err := auth.Decode(token)
 	if err != nil {
 		msg := "Invalid request, failed to decode bearer token"
-		return lib.NewBasicResponse(400, msg), err
+		return models.NewBasicResponse(400, msg), err
 	}
 
 	if claims.Data.SpotifyId != adminSpotifyId {
 		msg := "Invalid request, Unauthorized user, not joe!"
-		return lib.NewBasicResponse(400, msg), err
+		return models.NewBasicResponse(400, msg), err
 	}
 	// https://stackoverflow.com/questions/36051177/date-now-equivalent-in-go
 	now := time.Now().UTC().UnixNano() / 1e6
 	if claims.Data.Expires < now {
 		msg := "Invalid request, token expired"
-		return lib.NewBasicResponse(400, msg), err
+		return models.NewBasicResponse(400, msg), err
 	}
 
 	users, err := ddb.GetUsers()
 	if err != nil {
 		msg := "Failed to get users from ddb " + err.Error()
-		return lib.NewBasicResponse(400, msg), err
+		return models.NewBasicResponse(400, msg), err
 	}
 
-	nextClaims := lib.JWTClaims{
-		Data: lib.JWTData{
+	nextClaims := models.JWTClaims{
+		Data: models.JWTData{
 			Expires:   now * 1000,
 			SpotifyId: claims.Data.SpotifyId,
 		},
@@ -80,10 +81,10 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 	token, err = auth.Encode(nextClaims)
 	if err != nil {
 		msg := "Failed to encode token " + err.Error()
-		return lib.NewBasicResponse(500, msg), err
+		return models.NewBasicResponse(500, msg), err
 	}
 
-	return lib.NewUserResponse(
+	return models.NewUserResponse(
 		users,
 		token,
 	), nil
