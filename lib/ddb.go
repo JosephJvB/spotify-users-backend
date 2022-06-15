@@ -18,7 +18,7 @@ type Ddb struct {
 	client *dynamodb.Client
 }
 
-func (d *Ddb) GetUsers() ([]User, error) {
+func (d Ddb) GetUsers() ([]User, error) {
 	var key map[string]types.AttributeValue
 	users := []User{}
 	for loop := true; loop; loop = (key != nil) {
@@ -45,13 +45,13 @@ func (d *Ddb) GetUsers() ([]User, error) {
 	return users, nil
 }
 
-func NewDdb() *Ddb {
+func NewDdb() Ddb {
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("ap-southeast-2"))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	client := dynamodb.NewFromConfig(cfg)
-	d := &Ddb{client}
+	d := Ddb{client}
 	return d
 }

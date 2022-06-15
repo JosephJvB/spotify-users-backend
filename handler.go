@@ -49,7 +49,7 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 	}
 
 	claims, err := auth.Decode(token)
-	if err != nil || claims == nil {
+	if err != nil {
 		msg := "Invalid request, failed to decode bearer token"
 		return lib.NewBasicResponse(400, msg), err
 	}
