@@ -52,24 +52,24 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 	claims, err := auth.Decode(token)
 	if err != nil {
 		msg := "Invalid request, failed to decode bearer token"
-		return models.NewBasicResponse(400, msg), err
+		return models.NewBasicResponse(400, msg), nil
 	}
 
 	if claims.Data.SpotifyId != adminSpotifyId {
 		msg := "Invalid request, Unauthorized user, not joe!"
-		return models.NewBasicResponse(400, msg), err
+		return models.NewBasicResponse(400, msg), nil
 	}
 	// https://stackoverflow.com/questions/36051177/date-now-equivalent-in-go
 	now := time.Now().UTC().UnixNano() / 1e6
 	if claims.Data.Expires < now {
 		msg := "Invalid request, token expired"
-		return models.NewBasicResponse(400, msg), err
+		return models.NewBasicResponse(400, msg), nil
 	}
 
 	users, err := ddb.GetUsers()
 	if err != nil {
 		msg := "Failed to get users from ddb " + err.Error()
-		return models.NewBasicResponse(400, msg), err
+		return models.NewBasicResponse(400, msg), nil
 	}
 
 	nextClaims := models.JWTClaims{
@@ -81,7 +81,7 @@ func HandleLambdaEvent(request events.APIGatewayProxyRequest) (events.APIGateway
 	token, err = auth.Encode(nextClaims)
 	if err != nil {
 		msg := "Failed to encode token " + err.Error()
-		return models.NewBasicResponse(500, msg), err
+		return models.NewBasicResponse(500, msg), nil
 	}
 
 	return models.NewUserResponse(
