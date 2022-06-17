@@ -31,13 +31,13 @@ func (d Ddb) GetUsers() ([]models.User, error) {
 		}
 		r, err := d.client.Scan(context.TODO(), params)
 		if err != nil {
-			return nil, err
+			return users, err
 		}
 		for _, v := range r.Items {
 			u := models.User{}
 			err = attributevalue.UnmarshalMap(v, &u)
 			if err != nil {
-				return nil, err
+				return users, err
 			}
 			users = append(users, u)
 		}

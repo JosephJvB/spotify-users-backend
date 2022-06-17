@@ -21,8 +21,8 @@ var (
 func init() {
 	log.SetPrefix("LoadUsers:")
 	log.SetFlags(0)
-	auth = clients.NewAuth()
 	adminSpotifyId = os.Getenv("AdminSpotifyId")
+	auth = clients.NewAuth()
 	ddb = clients.NewDdb()
 }
 

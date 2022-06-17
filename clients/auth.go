@@ -22,7 +22,7 @@ func (a Auth) Decode(tokenStr string) (models.JWTClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return claims, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
 		return a.JwtSecret, nil
