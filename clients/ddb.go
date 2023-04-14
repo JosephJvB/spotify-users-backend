@@ -3,6 +3,7 @@ package clients
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -47,7 +48,7 @@ func (d Ddb) GetUsers() ([]models.User, error) {
 }
 
 func NewDdb() Ddb {
-	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("ap-southeast-2"))
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(os.Getenv("AWS_REGION")))
 	if err != nil {
 		log.Fatal(err)
 	}

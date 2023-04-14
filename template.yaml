@@ -36,6 +36,10 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: v1
+      Cors:
+        AllowHeaders: "*"
+        AllowMethods: "*"
+        AllowOrigin: "*"
       Domain:
         DomainName: go.jaf-unwrapped.com
         CertificateArn: arn:aws:acm:eu-west-2:355151872526:certificate/692a3b22-81bb-4c1c-a600-a1eac3cb32cb
